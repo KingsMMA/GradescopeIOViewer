@@ -19,6 +19,7 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <Grid Grid.Column="0" Grid.Row="0">
             <Grid.ColumnDefinitions>
@@ -51,11 +52,15 @@
         </ListBox>
         <TextBox Grid.Column="1" Grid.Row="2" Grid.RowSpan="2" Name="inputText" IsReadOnly="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
         </TextBox>
-        <TextBox Grid.Column="2" Grid.Row="2" Name="outputText" IsReadOnly="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" ToolTip="Expected Output">
+        <TextBox Grid.Column="2" Grid.ColumnSpan="2" Grid.Row="2" Name="outputText" IsReadOnly="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" ToolTip="Expected Output">
         </TextBox>
-        <TextBox Grid.Column="2" Grid.Row="3" Name="actualOutputText" IsReadOnly="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Visibility="Collapsed" Foreground="DarkRed" ToolTip="Test Results"/>
+        <TextBox Grid.Column="2" Grid.ColumnSpan="2" Grid.Row="3" Name="actualOutputText" IsReadOnly="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Visibility="Collapsed" Foreground="DarkRed" ToolTip="Test Results"/>
         <Label Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="4">
             "L's Gradescope I/O Viewer" is in no way associated with Gradescope or Turnitin, LLC.  Test results may not match gradescope results.
+        </Label>
+
+        <Label Grid.Column="3" Grid.Row="4" Padding="10 5 5 5" Name="testSummaryLabel">
+            0/0
         </Label>
     </Grid>
 </Window>

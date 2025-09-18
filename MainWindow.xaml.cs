@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using File = System.IO.File;
 
 namespace GradescopeIOViewer
 {
@@ -220,6 +221,9 @@ namespace GradescopeIOViewer
             {
                 item.Color = Brushes.Black;
             }
+
+            testSummaryLabel.Content = "0/0";
+            testSummaryLabel.Foreground = Brushes.Black;
         }
 
         private void ButtonRunTests_Click(object sender, RoutedEventArgs e)
@@ -254,6 +258,13 @@ namespace GradescopeIOViewer
                             int remaining = testResults.Count(e => e == null);
                             btnRunTests.Content = (total - remaining) + "/" + total;
                         }
+
+                        int passed = names.Count(n => n.Color == Brushes.Green);
+                        int failed = names.Count(n => n.Color == Brushes.Red);
+                        testSummaryLabel.Content = passed + "/" + (passed + failed);
+                        testSummaryLabel.Foreground = failed > 0 ? Brushes.Red : (
+                            passed > 0 ? Brushes.Green : Brushes.Black
+                        );
                     }
                 });
             });
