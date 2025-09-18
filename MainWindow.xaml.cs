@@ -1,5 +1,6 @@
 ﻿using GradescopeIOViewer.tests;
 using Microsoft.Win32;
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.IO.Compression;
@@ -32,7 +33,12 @@ namespace GradescopeIOViewer
 
         private void OpenCase(object sender, SelectionChangedEventArgs e)
         {
-            if (e.AddedItems.Count == 0)
+            _OpenCase(e.AddedItems, e.RemovedItems);
+        }
+
+        private void _OpenCase(IList AddedItems, IList RemovedItems)
+        {
+            if (AddedItems.Count == 0)
             {
                 inputText.Text = "";
                 outputText.Text = "";
@@ -41,7 +47,7 @@ namespace GradescopeIOViewer
                 return;
             }
 
-            CaseItem caseItem = (CaseItem)e.AddedItems[0];
+            CaseItem caseItem = (CaseItem)AddedItems[0];
             int index = names.IndexOf(caseItem);
 
             if (caseItem.Name.StartsWith("➕") || caseItem.Name.StartsWith("➖"))
@@ -51,7 +57,7 @@ namespace GradescopeIOViewer
                 rootsShown[projectIndex] = !rootsShown[projectIndex];
                 UpdateData();
 
-                if (e.RemovedItems.Count != 0) CasesBox.SelectedIndex = names.IndexOf((CaseItem)e.RemovedItems[0]);
+                if (RemovedItems.Count != 0) CasesBox.SelectedIndex = names.IndexOf((CaseItem)RemovedItems[0]);
                 else CasesBox.SelectedIndex = -1;
                 return;
             }
@@ -253,6 +259,13 @@ namespace GradescopeIOViewer
                             btnChangeExeLoc.IsEnabled = true;
                             btnRunTests.IsEnabled = true;
                             btnRunTests.Content = "Run Tests";
+
+                            object selectedCase = CasesBox.SelectedItem;
+                            if (selectedCase != null)
+                            {
+                                // Refresh the test results of the selected case
+                                _OpenCase(new List<CaseItem> { (CaseItem)selectedCase }, new List<CaseItem> { });
+                            }
                         } else
                         {
                             int total = testResults.Count();
