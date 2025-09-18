@@ -243,7 +243,8 @@ namespace GradescopeIOViewer
                     if (testResults != null)
                     {
                         names[i].Color = (testResults[i] == outputs[i] ||
-                        testResults[i].TrimEnd('\r', '\n') == outputs[i].TrimEnd('\r', '\n')  // New lines are sometimes added to the end of the results / output that are inconsequential
+                        testResults[i].TrimEnd('\r', '\n') == outputs[i].TrimEnd('\r', '\n') ||  // New lines are sometimes added to the end of the results / output that are inconsequential
+                        testResults[i].TrimEnd('\r', '\n').ReplaceLineEndings() == outputs[i].TrimEnd('\r', '\n').ReplaceLineEndings()  // Tests sometimes fail due to mismatched line endings
                         ) ? Brushes.Green : Brushes.Red;
                         if (testResults.Count(e => e == null) == 0)
                         {
