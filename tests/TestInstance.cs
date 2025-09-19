@@ -34,12 +34,11 @@ namespace GradescopeIOViewer.tests
 
             if (!string.IsNullOrEmpty(input))
             {
-                string[] lines = input.Split('\n');
+                string[] lines = input.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
                 foreach (string line in lines)
                 {
                     process.StandardInput.WriteLine(line);
                 }
-                process.StandardInput.Flush();
             }
 
             process.BeginErrorReadLine();
