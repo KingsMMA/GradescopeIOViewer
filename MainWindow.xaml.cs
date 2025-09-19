@@ -1,4 +1,5 @@
-﻿using GradescopeIOViewer.tests;
+﻿using DiffMatchPatch;
+using GradescopeIOViewer.tests;
 using Microsoft.Win32;
 using System.Collections;
 using System.Collections.ObjectModel;
@@ -6,6 +7,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Media;
 using File = System.IO.File;
 
@@ -42,7 +44,7 @@ namespace GradescopeIOViewer
             {
                 inputText.Text = "";
                 outputText.Text = "";
-                actualOutputText.Text = "";
+                actualOutputText.Document.Blocks.Clear();
                 actualOutputText.Visibility = Visibility.Collapsed;
                 return;
             }
@@ -66,13 +68,33 @@ namespace GradescopeIOViewer
             outputText.Text = outputs[index];
 
             // Show actual output only if failed test is selected
+            actualOutputText.Document.Blocks.Clear();
             if (caseItem.Color == Brushes.Red && testResults != null && testResults[index] != null)
             {
-                actualOutputText.Text = testResults[index];
+                Paragraph paragraph = new Paragraph();
+                diff_match_patch dmp = new diff_match_patch();
+                List<Diff> diff = dmp.diff_main(testResults[index], outputs[index]);
+                dmp.diff_cleanupSemantic(diff);
+                foreach (Diff chunk in diff)
+                {
+                    Run run = new Run(chunk.text);
+                    switch (chunk.operation)
+                    {
+                        case Operation.INSERT:
+                            run.Foreground = Brushes.White;
+                            run.Background = Brushes.DarkGreen;
+                            break;
+                        case Operation.DELETE:
+                            run.Foreground = Brushes.White;
+                            run.Background = Brushes.DarkRed;
+                            break;
+                    }
+                    paragraph.Inlines.Add(run);
+                }
+                actualOutputText.Document.Blocks.Add(paragraph);
                 actualOutputText.Visibility = Visibility.Visible;
             } else
             {
-                actualOutputText.Text = "";
                 actualOutputText.Visibility = Visibility.Collapsed;
             }
         }
