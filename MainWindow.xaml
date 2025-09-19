@@ -58,7 +58,7 @@
         </TextBox>
         <TextBox Grid.Column="2" Grid.ColumnSpan="2" Grid.Row="2" Name="outputText" IsReadOnly="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" ToolTip="Expected Output">
         </TextBox>
-        <RichTextBox Grid.Column="2" Grid.ColumnSpan="2" Grid.Row="3" Name="actualOutputText" IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Visibility="Collapsed" ToolTip="Test Results" MaxHeight="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource MultiplyConverter}}"/>
+        <RichTextBox Grid.Column="2" Grid.ColumnSpan="2" Grid.Row="3" Name="actualOutputText" IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Visibility="Collapsed" ToolTip="Test Results" MaxHeight="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource MultiplyConverter}}" ContextMenuOpening="TestResults_ContextMenuOpen"/>
         <Label Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="4">
             "L's Gradescope I/O Viewer" is in no way associated with Gradescope or Turnitin, LLC.  Test results may not match gradescope results.
         </Label>

@@ -7,6 +7,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Documents;
 using System.Windows.Media;
 using File = System.IO.File;
@@ -26,6 +27,7 @@ namespace GradescopeIOViewer
         List<string> inputs = new List<string> { };
         List<string> outputs = new List<string> { };
         string?[]? testResults;
+        bool showDiffResults = true;
 
         public MainWindow()
         {
@@ -72,25 +74,35 @@ namespace GradescopeIOViewer
             if (caseItem.Color == Brushes.Red && testResults != null && testResults[index] != null)
             {
                 Paragraph paragraph = new Paragraph();
-                diff_match_patch dmp = new diff_match_patch();
-                List<Diff> diff = dmp.diff_main(testResults[index], outputs[index]);
-                dmp.diff_cleanupSemantic(diff);
-                foreach (Diff chunk in diff)
+
+                if (showDiffResults)
                 {
-                    Run run = new Run(chunk.text);
-                    switch (chunk.operation)
+                    diff_match_patch dmp = new diff_match_patch();
+                    List<Diff> diff = dmp.diff_main(testResults[index], outputs[index]);
+                    dmp.diff_cleanupSemantic(diff);
+                    foreach (Diff chunk in diff)
                     {
-                        case Operation.INSERT:
-                            run.Foreground = Brushes.White;
-                            run.Background = Brushes.DarkGreen;
-                            break;
-                        case Operation.DELETE:
-                            run.Foreground = Brushes.White;
-                            run.Background = Brushes.DarkRed;
-                            break;
+                        Run run = new Run(chunk.text);
+                        switch (chunk.operation)
+                        {
+                            case Operation.INSERT:
+                                run.Foreground = Brushes.White;
+                                run.Background = Brushes.DarkGreen;
+                                break;
+                            case Operation.DELETE:
+                                run.Foreground = Brushes.White;
+                                run.Background = Brushes.DarkRed;
+                                break;
+                        }
+                        paragraph.Inlines.Add(run);
                     }
+                } else
+                {
+                    Run run = new Run(testResults[index]);
+                    run.Foreground = Brushes.DarkRed;
                     paragraph.Inlines.Add(run);
                 }
+
                 actualOutputText.Document.Blocks.Add(paragraph);
                 actualOutputText.Visibility = Visibility.Visible;
             } else
@@ -315,6 +327,27 @@ namespace GradescopeIOViewer
                 string tempPath = Path.GetTempPath() + "\\LsGradescopeIOViewer";
                 if (Directory.Exists(tempPath)) Directory.Delete(tempPath, true);
             } catch { }
+        }
+
+        private void TestResults_ContextMenuOpen(object sender, ContextMenuEventArgs e)
+        {
+            RichTextBox? rtb = sender as RichTextBox;
+            if (rtb == null) return;
+
+            ContextMenu contextMenu = new ContextMenu();
+            MenuItem toggleDiff = new MenuItem();
+            toggleDiff.Header = "Show diff";
+            toggleDiff.IsChecked = showDiffResults;
+            toggleDiff.Click += (sender, e) => {
+                showDiffResults = !showDiffResults;
+                _OpenCase(new List<CaseItem> { (CaseItem)CasesBox.SelectedItem }, new List<CaseItem> { });
+            };
+            contextMenu.Items.Add(toggleDiff);
+            contextMenu.Placement = PlacementMode.MousePoint;
+
+            // Mark event as handled
+            contextMenu.IsOpen = true;
+            e.Handled = true;
         }
     }
 }
