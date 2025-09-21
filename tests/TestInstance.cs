@@ -43,12 +43,17 @@ namespace GradescopeIOViewer.tests
 
             process.BeginErrorReadLine();
             process.BeginOutputReadLine();
-
         }
 
-        public static async Task<TestInstance> Spawn(string executable, string input)
+        public void Kill()
+        {
+            process.Kill();
+        }
+
+        public static async Task<TestInstance> Spawn(string executable, string input, List<TestInstance> instances)
         {
             TestInstance test = new TestInstance(executable, input);
+            instances.Add(test);
             await Task.WhenAny(test.processExitedTaskSource.Task, Task.Delay(TimeSpan.FromSeconds(10)));
             test.process.WaitForExit();
             test.process.WaitForExit(100);

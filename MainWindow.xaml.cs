@@ -78,7 +78,7 @@ namespace GradescopeIOViewer
                 if (showDiffResults)
                 {
                     diff_match_patch dmp = new diff_match_patch();
-                    List<Diff> diff = dmp.diff_main(testResults[index], outputs[index]);
+                    List<Diff> diff = dmp.diff_main(testResults[index].ReplaceLineEndings(), outputs[index].ReplaceLineEndings());
                     dmp.diff_cleanupSemantic(diff);
                     foreach (Diff chunk in diff)
                     {
@@ -268,6 +268,12 @@ namespace GradescopeIOViewer
 
         private void ButtonRunTests_Click(object sender, RoutedEventArgs e)
         {
+            if (!btnOpenFolder.IsEnabled)
+            { // We are already running tests, clicking to cancel
+                TestManager.KillTests();
+                return;
+            }
+
             if (selectedExe == null || outputs.Count == 0) return;
             if (testResults != null && testResults.Count(e => e == null) > 0) return;
 
@@ -276,9 +282,8 @@ namespace GradescopeIOViewer
             btnOpenFolder.IsEnabled = false;
             btnOpenArchive.IsEnabled = false;
             btnChangeExeLoc.IsEnabled = false;
-            btnRunTests.IsEnabled = false;
 
-            TestManager.runTests(testResults, selectedExe, inputs, outputs, i => {
+            TestManager.RunTests(testResults, selectedExe, inputs, outputs, i => {
                 Dispatcher.Invoke(() => {
                     if (testResults != null)
                     {
@@ -291,7 +296,6 @@ namespace GradescopeIOViewer
                             btnOpenFolder.IsEnabled = true;
                             btnOpenArchive.IsEnabled = true;
                             btnChangeExeLoc.IsEnabled = true;
-                            btnRunTests.IsEnabled = true;
                             btnRunTests.Content = "Run Tests";
 
                             object selectedCase = CasesBox.SelectedItem;
