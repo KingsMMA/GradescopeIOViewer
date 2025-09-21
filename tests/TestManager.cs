@@ -12,10 +12,47 @@
             {
                 int tempI = i;
                 _ = Task.Run(async () => {
-                    TestInstance testInstance = await TestInstance.Spawn(executable, inputs[tempI], runningTests);
-                    string output = testInstance.output.ToString();
-                    results[tempI] = output;
-                    runningTests.Remove(testInstance);
+                    const int minRuns = 3;
+                    const int maxRuns = 10;
+                    const double threshold = 0.7;
+                    var outputCounts = new Dictionary<string, int>();
+                    var outputOrder = new List<string>();
+                    int runs = 0;
+                    string selectedOutput = null;
+                    while (runs < maxRuns)
+                    {
+                        TestInstance testInstance = await TestInstance.Spawn(executable, inputs[tempI], runningTests);
+                        string output = testInstance.output.ToString();
+                        runningTests.Remove(testInstance);
+                        runs++;
+                        if (!outputCounts.ContainsKey(output))
+                        {
+                            outputCounts[output] = 0;
+                            outputOrder.Add(output);
+                        }
+                        outputCounts[output]++;
+                        // Check if any output meets threshold
+                        foreach (var kvp in outputCounts)
+                        {
+                            if (kvp.Value >= minRuns && kvp.Value >= (int)(runs * threshold))
+                            {
+                                selectedOutput = kvp.Key;
+                                break;
+                            }
+                        }
+                        if (selectedOutput != null && runs >= minRuns)
+                            break;
+
+                        if (testInstance.WasKilled)
+                            break;
+                    }
+                    // If no output meets threshold, pick most frequent (or first if tied)
+                    if (selectedOutput == null)
+                    {
+                        int maxCount = outputCounts.Values.Max();
+                        selectedOutput = outputOrder.First(o => outputCounts[o] == maxCount);
+                    }
+                    results[tempI] = selectedOutput;
                     onTestComplete(tempI);
                 });
             }
@@ -25,7 +62,14 @@
         {
             if (runningTests.Count == 0) return;
 
-            foreach (TestInstance instance in runningTests)
+            TestInstance[] instances;
+            lock (runningTests)
+            {
+                instances = new TestInstance[runningTests.Count];
+                runningTests.CopyTo(instances);
+                runningTests.Clear();
+            }
+            foreach (TestInstance instance in instances)
             {
                 instance?.Kill();
             }

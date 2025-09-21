@@ -12,6 +12,7 @@ namespace GradescopeIOViewer.tests
         TaskCompletionSource<string> processExitedTaskSource = new TaskCompletionSource<string>();
 
         public StringBuilder output = new StringBuilder();
+        public bool WasKilled { get; private set; } = false;
 
         private TestInstance(string executable, string input)
         {
@@ -47,6 +48,7 @@ namespace GradescopeIOViewer.tests
 
         public void Kill()
         {
+            WasKilled = true;
             process.Kill();
         }
 
