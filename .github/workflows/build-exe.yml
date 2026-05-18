@@ -1,0 +1,40 @@
+name: Build EXE
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - "**"
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x' # You can change this to your .NET SDK version
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build project
+      run: dotnet build --configuration Release
+
+    - name: Publish EXE
+      run: |
+        # Replace 'GradescopeIOViewer.csproj' with your project file if named differently
+        dotnet publish GradescopeIOViewer.csproj -c Release -r win-x64 --self-contained false -o ./dist
+      shell: pwsh
+
+    - name: Upload EXE artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: GradescopeIOViewer_EXE
+        path: ./dist/*.exe
